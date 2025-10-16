@@ -92,14 +92,38 @@ export default function OnboardingPage() {
   )
 }
 
-function ContributorProfileForm({ onComplete, onBack }: { onComplete: () => void; onBack: () => void }) {
-  const [formData, setFormData] = useState({
+type ContributorProfileData = {
+  name: string;
+  bio: string;
+  techStack: string;
+  interests: string;
+  experienceLevel: string;
+};
+
+function ContributorProfileForm({
+  onComplete,
+  onBack,
+}: {
+  onComplete: () => void;
+  onBack: () => void;
+}) {
+  const [formData, setFormData] = useState<ContributorProfileData>({
     name: "",
     bio: "",
     techStack: "",
     interests: "",
     experienceLevel: "intermediate",
-  })
+  });
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -121,7 +145,7 @@ function ContributorProfileForm({ onComplete, onBack }: { onComplete: () => void
             id="name"
             placeholder="John Doe"
             value={formData.name}
-            onChange={(e: { target: { value: any } }) => setFormData({ ...formData, name: e.target.value })}
+            onChange={handleInputChange}
             required
             className="bg-background"
           />
@@ -133,7 +157,7 @@ function ContributorProfileForm({ onComplete, onBack }: { onComplete: () => void
             id="bio"
             placeholder="Tell us about yourself..."
             value={formData.bio}
-            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+            onChange={handleInputChange}
             className="w-full min-h-24 px-3 py-2 rounded-md border border-input bg-background text-foreground"
           />
         </div>
@@ -144,7 +168,7 @@ function ContributorProfileForm({ onComplete, onBack }: { onComplete: () => void
             id="techStack"
             placeholder="React, TypeScript, Solidity, Node.js"
             value={formData.techStack}
-            onChange={(e: { target: { value: any } }) => setFormData({ ...formData, techStack: e.target.value })}
+            onChange={handleInputChange}
             required
             className="bg-background"
           />
@@ -157,18 +181,18 @@ function ContributorProfileForm({ onComplete, onBack }: { onComplete: () => void
             id="interests"
             placeholder="AI, DeFi, NFTs, Gaming"
             value={formData.interests}
-            onChange={(e: { target: { value: any } }) => setFormData({ ...formData, interests: e.target.value })}
+            onChange={handleInputChange}
             className="bg-background"
           />
           <p className="text-xs text-muted-foreground">What types of projects interest you?</p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="experience">Experience Level</Label>
+          <Label htmlFor="experienceLevel">Experience Level</Label>
           <select
-            id="experience"
+            id="experienceLevel"
             value={formData.experienceLevel}
-            onChange={(e) => setFormData({ ...formData, experienceLevel: e.target.value })}
+            onChange={handleInputChange}
             className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground"
           >
             <option value="beginner">Beginner</option>
@@ -190,12 +214,34 @@ function ContributorProfileForm({ onComplete, onBack }: { onComplete: () => void
   )
 }
 
-function MaintainerProfileForm({ onComplete, onBack }: { onComplete: () => void; onBack: () => void }) {
-  const [formData, setFormData] = useState({
+type MaintainerProfileData = {
+  name: string;
+  organization: string;
+  bio: string;
+};
+
+function MaintainerProfileForm({
+  onComplete,
+  onBack,
+}: {
+  onComplete: () => void;
+  onBack: () => void;
+}) {
+  const [formData, setFormData] = useState<MaintainerProfileData>({
     name: "",
     organization: "",
     bio: "",
-  })
+  });
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -217,7 +263,7 @@ function MaintainerProfileForm({ onComplete, onBack }: { onComplete: () => void;
             id="name"
             placeholder="John Doe"
             value={formData.name}
-            onChange={(e: { target: { value: any } }) => setFormData({ ...formData, name: e.target.value })}
+            onChange={handleInputChange}
             required
             className="bg-background"
           />
@@ -229,7 +275,7 @@ function MaintainerProfileForm({ onComplete, onBack }: { onComplete: () => void;
             id="organization"
             placeholder="Your Company or Project"
             value={formData.organization}
-            onChange={(e: { target: { value: any } }) => setFormData({ ...formData, organization: e.target.value })}
+            onChange={handleInputChange}
             className="bg-background"
           />
         </div>
@@ -240,7 +286,7 @@ function MaintainerProfileForm({ onComplete, onBack }: { onComplete: () => void;
             id="bio"
             placeholder="Tell us about your projects..."
             value={formData.bio}
-            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+            onChange={handleInputChange}
             className="w-full min-h-24 px-3 py-2 rounded-md border border-input bg-background text-foreground"
           />
         </div>

@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Code2, Star, GitFork, ExternalLink, User, AlertCircle, Clock } from "lucide-react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
 
 // Mock data
 const mockRepo = {
@@ -72,7 +71,7 @@ const mockIssues = [
 ]
 
 export default function RepoDetailPage() {
-  const params = useParams()
+  // const params = useParams()
   const [selectedIssue, setSelectedIssue] = useState<number | null>(null)
   const [showApplicationModal, setShowApplicationModal] = useState(false)
 
@@ -235,7 +234,7 @@ export default function RepoDetailPage() {
           <Card className="w-full max-w-md p-6 bg-card border-border">
             <h2 className="text-2xl font-bold mb-4">Apply to Issue</h2>
             <p className="text-muted-foreground mb-6">
-              Tell the maintainer why you're a good fit for this issue and your approach to solving it.
+              Tell the maintainer why you&apos;re a good fit for this issue and your approach to solving it.
             </p>
 
             <form

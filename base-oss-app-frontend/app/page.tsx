@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useQuickAuth,useMiniKit } from "@coinbase/onchainkit/minikit";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
+// import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Github, Code2, Users, Zap } from "lucide-react"
@@ -9,22 +9,24 @@ import Link from "next/link"
 // import { minikitConfig } from "../minikit.config";
 // import styles from "./page.module.css";
 
-interface AuthResponse {
-  success: boolean;
-  user?: {
-    fid: number; // FID is the unique identifier for the user
-    issuedAt?: number;
-    expiresAt?: number;
-  };
-  message?: string; // Error messages come as 'message' not 'error'
-}
+// interface AuthResponse {
+//   success: boolean;
+//   user?: {
+//     fid: number; // FID is the unique identifier for the user
+//     issuedAt?: number;
+//     expiresAt?: number;
+//   };
+//   message?: string; // Error messages come as 'message' not 'error'
+// }
 
 
 export default function Home() {
-  const { isFrameReady, setFrameReady, context } = useMiniKit();
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const { isFrameReady, setFrameReady } = useMiniKit();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const [email, setEmail] = useState("");
+  // // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const [error, setError] = useState("");
+  // const router = useRouter();
 
   // Initialize the  miniapp
   useEffect(() => {
@@ -44,48 +46,16 @@ export default function Home() {
   //   userFid: string;
   // }>("/api/auth");
 
-  const { data: authData, isLoading: isAuthLoading, error: authError } = useQuickAuth<AuthResponse>(
-    "/api/auth",
-    { method: "GET" }
-  );
+  // const { data: authData, isLoading: isAuthLoading, error: authError } = useQuickAuth<AuthResponse>(
+  //   "/api/auth",
+  //   { method: "GET" }
+  // );
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  // const validateEmail = (email: string) => {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   return emailRegex.test(email);
+  // };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    // Check authentication first
-    if (isAuthLoading) {
-      setError("Please wait while we verify your identity...");
-      return;
-    }
-
-    if (authError || !authData?.success) {
-      setError("Please authenticate to join the waitlist");
-      return;
-    }
-
-    if (!email) {
-      setError("Please enter your email address");
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
-
-    // TODO: Save email to database/API with user FID
-    console.log("Valid email submitted:", email);
-    console.log("User authenticated:", authData.user);
-    
-    // Navigate to success page
-    router.push("/success");
-  };
 
   return (
     <div className="min-h-screen bg-background">
