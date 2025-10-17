@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Github, Code2, Users, Zap } from "lucide-react"
 import Link from "next/link"
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 // import { minikitConfig } from "../minikit.config";
 // import styles from "./page.module.css";
 
@@ -68,7 +69,7 @@ export default function Home() {
           </div>
           <Link href="/auth">
             <Button variant="outline" className="gap-2 bg-transparent">
-              <Github className="h-4 w-4" />
+              {/* <Github className="h-4 w-4" /> */}
               Sign In
             </Button>
           </Link>
@@ -188,10 +189,11 @@ export default function Home() {
             Join the Base ecosystem and make meaningful contributions today.
           </p>
           <Link href="/auth">
-            <Button size="lg" className="gap-2">
+            {/* <Button size="lg" className="gap-2">
               <Github className="h-5 w-5" />
               Sign In with GitHub
-            </Button>
+            </Button> */}
+            <ConnectButton showBalance={false} />
           </Link>
         </Card>
       </section>
