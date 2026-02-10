@@ -1,53 +1,21 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useQuickAuth,useMiniKit } from "@coinbase/onchainkit/minikit";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { usePrivy } from '@privy-io/react-auth';
+
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Github, Code2, Users, Zap } from "lucide-react"
 import Link from "next/link"
-// import { minikitConfig } from "../minikit.config";
-// import styles from "./page.module.css";
-
-interface AuthResponse {
-  success: boolean;
-  user?: {
-    fid: number; // FID is the unique identifier for the user
-    issuedAt?: number;
-    expiresAt?: number;
-  };
-  message?: string; // Error messages come as 'message' not 'error'
-}
-
 
 export default function Home() {
-  const { isFrameReady, setFrameReady, context } = useMiniKit();
+  const router = useRouter();
+  const { ready, authenticated, login, user } = usePrivy();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter();
 
-  // Initialize the  miniapp
-  useEffect(() => {
-    if (!isFrameReady) {
-      setFrameReady();
-    }
-  }, [setFrameReady, isFrameReady]);
- 
-  
-
-  // If you need to verify the user's identity, you can use the useQuickAuth hook.
-  // This hook will verify the user's signature and return the user's FID. You can update
-  // this to meet your needs. See the /app/api/auth/route.ts file for more details.
-  // Note: If you don't need to verify the user's identity, you can get their FID and other user data
-  // via `context.user.fid`.
-  // const { data, isLoading, error } = useQuickAuth<{
-  //   userFid: string;
-  // }>("/api/auth");
-
-  const { data: authData, isLoading: isAuthLoading, error: authError } = useQuickAuth<AuthResponse>(
-    "/api/auth",
-    { method: "GET" }
-  );
+  const walletAddress = user?.wallet?.address;
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -59,13 +27,14 @@ export default function Home() {
     setError("");
 
     // Check authentication first
-    if (isAuthLoading) {
-      setError("Please wait while we verify your identity...");
+    if (!ready) {
+      setError("Please wait while we initialize...");
       return;
     }
 
-    if (authError || !authData?.success) {
-      setError("Please authenticate to join the waitlist");
+    if (!authenticated) {
+      setError("Please connect your wallet to join the waitlist");
+      login(); // Trigger wallet connection
       return;
     }
 
@@ -79,9 +48,9 @@ export default function Home() {
       return;
     }
 
-    // TODO: Save email to database/API with user FID
+    // TODO: Save email to database/API with user wallet address
     console.log("Valid email submitted:", email);
-    console.log("User authenticated:", authData.user);
+    console.log("User authenticated:", { walletAddress, email: user?.email });
     
     // Navigate to success page
     router.push("/success");
@@ -94,14 +63,25 @@ export default function Home() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Code2 className="h-6 w-6 text-primary" />
-            <span className="text-xl font-semibold">Base OSS Match</span>
+            <span className="text-xl font-semibold">Ascencia</span>
           </div>
-          <Link href="/auth">
-            <Button variant="outline" className="gap-2 bg-transparent">
+          {authenticated ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground font-mono">
+                {walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}
+              </span>
+              <Link href="/issues">
+                <Button variant="outline" className="gap-2 bg-transparent">
+                  Browse Issues
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <Button onClick={login} variant="outline" className="gap-2 bg-transparent">
               <Github className="h-4 w-4" />
-              Sign In
+              Connect Wallet
             </Button>
-          </Link>
+          )}
         </div>
       </header>
 
@@ -113,21 +93,36 @@ export default function Home() {
           </h1>
           <p className="text-xl text-muted-foreground mb-8 text-pretty leading-relaxed">
             Match OSS contributors with relevant projects in the Base ecosystem. Find issues that match your skills,
-            contribute to meaningful projects, and earn rewards.
+            contribute to meaningful projects, and earn USDC rewards via Proof of Cycle.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth">
-              <Button size="lg" className="gap-2 w-full sm:w-auto">
+            {authenticated ? (
+              <Link href="/issues">
+                <Button size="lg" className="gap-2 w-full sm:w-auto">
+                  Browse Issues
+                </Button>
+              </Link>
+            ) : (
+              <Button onClick={login} size="lg" className="gap-2 w-full sm:w-auto">
                 <Github className="h-5 w-5" />
-                Get Started
+                Connect Wallet to Get Started
               </Button>
-            </Link>
-            <Link href="/browse">
+            )}
+            <Link href="/issues">
               <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent">
-                Browse Projects
+                View All Projects
               </Button>
             </Link>
           </div>
+
+          {/* Show authenticated status */}
+          {authenticated && (
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg inline-block">
+              <p className="text-sm text-green-700">
+                ✅ Connected as {walletAddress?.slice(0, 8)}...
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -160,7 +155,7 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-semibold mb-2">Earn Rewards</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Receive tips via tip.md for your contributions and build your reputation.
+              Receive USDC tips via x402 for your contributions and build on-chain reputation.
             </p>
           </Card>
         </div>
@@ -176,9 +171,9 @@ export default function Home() {
                 1
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Sign In & Set Up Profile</h3>
+                <h3 className="text-xl font-semibold mb-2">Connect Wallet</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Connect with GitHub or Base wallet and tell us about your skills and interests.
+                  Connect with your Base wallet via Privy and create your contributor profile.
                 </p>
               </div>
             </div>
@@ -202,7 +197,7 @@ export default function Home() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Contribute & Earn</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Submit your PR, get it reviewed, and receive tips for your valuable contributions.
+                  Submit your PR, complete the Proof of Cycle, and receive USDC tips + on-chain XP.
                 </p>
               </div>
             </div>
@@ -217,12 +212,17 @@ export default function Home() {
           <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
             Join the Base ecosystem and make meaningful contributions today.
           </p>
-          <Link href="/auth">
-            <Button size="lg" className="gap-2">
-              <Github className="h-5 w-5" />
-              Sign In with GitHub
+          {authenticated ? (
+            <Link href="/issues">
+              <Button size="lg" className="gap-2">
+                Browse Issues
+              </Button>
+            </Link>
+          ) : (
+            <Button onClick={login} size="lg" className="gap-2">
+              Connect Wallet
             </Button>
-          </Link>
+          )}
         </Card>
       </section>
 
@@ -232,9 +232,11 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
               <Code2 className="h-5 w-5 text-primary" />
-              <span className="font-semibold">Base OSS Match</span>
+              <span className="font-semibold">Ascencia</span>
             </div>
-            <p className="text-sm text-muted-foreground">Built for the Base ecosystem buildathon</p>
+            <p className="text-sm text-muted-foreground">
+              Built on Base • Powered by x402 • Proof of Cycle
+            </p>
           </div>
         </div>
       </footer>
