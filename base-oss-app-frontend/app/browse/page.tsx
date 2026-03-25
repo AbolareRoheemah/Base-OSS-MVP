@@ -82,7 +82,7 @@ export default function BrowsePage() {
         return
       }
 
-      const repoRows = (repoData ?? []) as RepoRow[]
+      const repoRows = (repoData ?? []) as unknown as RepoRow[]
       if (!cancelled) setRepos(repoRows)
 
       const repoIds = repoRows.map((r) => r.id)
